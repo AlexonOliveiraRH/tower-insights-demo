@@ -1,5 +1,5 @@
 ---
-- name: Setup AOT Demo Tower
+- name: Setup Tower-Insights Demo-Workshop
   hosts: all
   become: True
   gather_facts: False
