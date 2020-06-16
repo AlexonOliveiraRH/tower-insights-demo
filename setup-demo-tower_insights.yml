@@ -39,12 +39,6 @@
       tags:
         - credential
         
-    - name:
-      command: export LC_ALL=C.UTF-8 \
-               && export LANG=C.UTF-8
-      run_once: true
-      delegate_to: localhost
-
     - name: Create Insights Project in Tower
       command: /usr/local/bin/tower-cli project create -n "Insights Project" \
                --organization "Default" \
@@ -53,6 +47,9 @@
                --insecure \
                -u "{{ towuser }}" \
                -p "{{ towpass }}"
+      environment:
+        LC_ALL: C.UTF-8
+        LANG: C.UTF-8
       run_once: true
       delegate_to: localhost
       tags:
@@ -141,6 +138,9 @@
 
     - name: Register Insights Client(s) to cloud.redhat.com
       command: insights-client --register --display-name="{{ country }}_{{ inventory_hostname_short }}"
+      environment:
+        LC_ALL: C.UTF-8
+        LANG: C.UTF-8
       tags:
         - insights
     
