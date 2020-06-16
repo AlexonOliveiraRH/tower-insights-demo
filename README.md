@@ -33,9 +33,6 @@ rhnpass: <ChangeMe>
 studentid: student1
 
 # to unique identify managed host for each deployment
-# country: anz
-# country: ind
-# country: sgp
 country: towerinsightsworkshop
 ```
 # Use ansible-vault to protect your extra_vars.yml file
