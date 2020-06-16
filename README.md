@@ -41,5 +41,5 @@ $ ansible-vault encrypt extra_vars.yml
 ```
 # Run Ansible Playbook to setup demo
 ```
-$ ansible-playbook setup-aotdemo-tower.yml -e @extra_vars.yml --ask-vault-pass -v
+$ ansible-playbook setup-demo-tower_insights.yml -e @extra_vars.yml --ask-vault-pass -v
 ```
