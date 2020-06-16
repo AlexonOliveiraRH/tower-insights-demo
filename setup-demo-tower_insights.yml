@@ -80,7 +80,7 @@
         job_type: "run"
         inventory: "Workshop Inventory"
         project: "Scan Project"
-        playbook: "insights_scan_facts.yml"
+        playbook: "insights-scan-facts.yml"
         credential: "Machine SSH Credential"
         state: "present"
         tower_username: "{{ towuser }}"
