@@ -1,0 +1,149 @@
+---
+- name: Setup AOT Demo Tower
+  hosts: all
+  become: True
+  gather_facts: False
+
+  tasks:
+    - name: Create Insights Credential
+      tower_credential:
+        name: Insights Credential
+        organization: Default
+        kind: insights
+        username: "{{ rhnuser }}"
+        password: "{{ rhnpass }}"
+        state: present
+        tower_username: "{{ towuser }}"
+        tower_password: "{{ towpass }}"
+        tower_host: https://localhost
+        validate_certs: no
+      run_once: true
+      delegate_to: localhost
+      tags:
+        - credential
+
+    - name: Add Demo Machines SSH Credentials to Tower
+      tower_credential:
+        name: Machine SSH Credential
+        organization: Default
+        kind: ssh
+        username: "{{ machinesshuser }}"
+        password: "{{ machinesshpass }}"
+        state: present
+        tower_username: "{{ towuser }}"
+        tower_password: "{{ towpass }}"
+        tower_host: https://localhost
+        validate_certs: no
+      run_once: true
+      delegate_to: localhost
+      tags:
+        - credential
+
+    - name: Create Insights Project in Tower
+      command: /usr/local/bin/tower-cli project create -n "Insights Project" \
+               --organization "Default" \
+               --scm-type "insights" \
+               --scm-credential "Insights Credential" \
+               --insecure \
+               -u "{{ towuser }}" \
+               -p "{{ towpass }}"
+      run_once: true
+      delegate_to: localhost
+      tags:
+        - project
+    
+    - name: Create Insights Scan Project in Tower
+      tower_project:
+        name: "Scan Project"
+        organization: "Default"
+        scm_type: "git"
+        scm_url: "https://github.com/AlexonOliveiraRH/tower-insights-demo.gt"
+        state: present
+        tower_username: "{{ towuser }}"
+        tower_password: "{{ towpass }}"
+        tower_host: https://localhost
+        validate_certs: no
+      run_once: true
+      delegate_to: localhost
+      tags:
+        - project
+
+    - name: Sleep for 15 seconds and continue with play
+      wait_for:
+        timeout: 15
+      run_once: true
+      delegate_to: localhost
+
+    - name: Create Insights Scan Job Template
+      tower_job_template:
+        name: "Insights Scan"
+        job_type: "run"
+        inventory: "Workshop Inventory"
+        project: "Scan Project"
+        playbook: "insights_scan_facts.yml"
+        credential: "Machine SSH Credential"
+        state: "present"
+        tower_username: "{{ towuser }}"
+        tower_password: "{{ towpass }}"
+        tower_host: https://localhost
+        validate_certs: no
+      run_once: true
+      delegate_to: localhost
+      tags:
+        - template
+
+    - name: Create OpenSCAP Scan and Upload Template
+      tower_job_template:
+        name: "OpenSCAP Scan and Upload"
+        job_type: "run"
+        inventory: "Workshop Inventory"
+        project: "Scan Project"
+        playbook: "oscap-scan-and-upload.yml"
+        credential: "Machine SSH Credential"
+        state: "present"
+        tower_username: "{{ towuser }}"
+        tower_password: "{{ towpass }}"
+        tower_host: https://localhost
+        validate_certs: no
+      run_once: true
+      delegate_to: localhost
+      tags:
+        - template
+
+- name: Setup Tower-Insights Demo Managed Nodes
+  hosts: web
+  become: True
+  gather_facts: False
+
+  tasks:
+    - name: Register as user with password and subscribe
+      redhat_subscription:
+        state: present
+        pool: '^Red Hat Enterprise Linux Server$'
+        username: "{{ rhnuser }}"
+        password: "{{ rhnpass }}"
+        force_register: true
+      tags:
+        - subscribe
+
+    - name: Install Insights Client to Managed Nodes
+      yum:
+        name: insights-client
+        state: latest
+      tags:
+        - insights
+
+    - name: Register Insights Client(s) to cloud.redhat.com
+      command: insights-client --register --display-name="{{ country }}_{{ inventory_hostname_short }}"
+      tags:
+        - insights
+    
+    - name: Install OpenSCAP Packages to Managed Nodes
+      yum:
+        name: "{{ item }}"
+        state: latest
+      with_items:
+        - openscap-scanner
+        - scap-security-guide
+      tags:
+        - oscap

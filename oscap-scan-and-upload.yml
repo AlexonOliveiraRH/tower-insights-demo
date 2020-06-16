@@ -1,0 +1,10 @@
+---
+- name: OpenSCAP Scan and Upload Data
+  hosts: web
+  become: True
+  gather_facts: False
+  
+  tasks:
+    - name: Upload scan results to cloud.redhat.com
+      command: insights-client --compliance
+      ignore_errors: yes

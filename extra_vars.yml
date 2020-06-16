@@ -1,0 +1,20 @@
+# tower credential
+towuser: admin
+towpass: ChangeMe
+
+# managed nodes credential
+machinesshuser: student1
+machinesshpass: ChangeMe
+
+# insights scm credential
+rhnuser: ChangeMe
+rhnpass: ChangeMe
+
+# student number given by rhpds for ssh
+studentid: student1
+
+# to unique identify managed host for each deployment
+# country: anz
+# country: ind
+# country: sgp
+country: towerinsightsworkshop
