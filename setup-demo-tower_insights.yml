@@ -60,7 +60,7 @@
         name: "Scan Project"
         organization: "Default"
         scm_type: "git"
-        scm_url: "https://github.com/AlexonOliveiraRH/tower-insights-demo.gt"
+        scm_url: "https://github.com/AlexonOliveiraRH/tower-insights-demo.git"
         state: present
         tower_username: "{{ towuser }}"
         tower_password: "{{ towpass }}"
@@ -90,6 +90,8 @@
         tower_password: "{{ towpass }}"
         tower_host: https://localhost
         validate_certs: no
+        become_enabled: yes
+        fact_caching_enabled: yes
       run_once: true
       delegate_to: localhost
       tags:
